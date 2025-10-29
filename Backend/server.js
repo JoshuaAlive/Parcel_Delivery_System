@@ -4,10 +4,14 @@ require("dotenv").config();
 const cors = require("cors");
 const connectDB = require("./config/db");
 const PORT = process.env.PORT || 8500;
-const router = require("./routes/routes");
+const authRoute = require("./routes/auth");
+const parcelRoute = require("./routes/parcel");
+const userRoute = require("./routes/user");
 
 // ROUTE
-app.use(router);
+app.use("/auth", authRoute);
+app.use("/parcels", parcelRoute);
+app.use("/users", userRoute);
 
 // MIDDLEWARES
 app.use(express.json());
