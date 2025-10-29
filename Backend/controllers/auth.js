@@ -1,11 +1,11 @@
-const router = require("../routes/routes");
+const router = require("../routes/auth");
 const CryptoJs = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 require("dotenv").config();
 
-// REGISTRATION
-const register = async (req, res) => {
+// REGISTER USER
+const registerUser = async (req, res) => {
   const newUser = User({
     fullName: req.body.fullName,
     email: req.body.email,
@@ -26,8 +26,8 @@ const register = async (req, res) => {
   }
 };
 
-// LOGIN
-const login = async (req, res) => {
+// LOGIN USER
+const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
@@ -58,4 +58,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+module.exports = { registerUser, loginUser };
