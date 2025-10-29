@@ -1,4 +1,3 @@
-const router = require("../routes/auth");
 const CryptoJs = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
@@ -39,7 +38,8 @@ const loginUser = async (req, res) => {
       process.env.PASS
     );
 
-    const originalPassword = hashedPassword.toString(CryptoJS.enc.utf8);
+    // use the same CryptoJs reference (enc.Utf8) to convert decrypted data to string
+    const originalPassword = hashedPassword.toString(CryptoJs.enc.Utf8);
     if (originalPassword !== req.body.password) {
       return res.status(500).json("Wrong credentials");
     }
