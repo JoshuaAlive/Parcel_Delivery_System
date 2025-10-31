@@ -15,6 +15,7 @@ const createParcel = async (req, res) => {
 const getAllParcels = async (req, res) => {
   try {
     const parcels = await Parcel.find().sort({ createdAt: -1 });
+    console.log(`Fetched ${parcels.length} parcels successfully.`);
     res.status(200).json(parcels);
   } catch (error) {
     res.ststus(500).json(error);
@@ -24,8 +25,12 @@ const getAllParcels = async (req, res) => {
 // UPDATE THE PARCEL
 const updateParcel = async (req, res) => {
   try {
-    const parcel = await Parcel.findByIdAndUpdate(req.params.id);
-    res.status(201).json(parcel);
+    const parcel = await Parcel.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.status(200).json(parcel);
   } catch (error) {
     res.status(500).json(error);
   }

@@ -4,7 +4,7 @@ const parcelSchema = mongoose.Schema(
   {
     from: { type: String, required: true },
     to: { type: String, required: true, unique: true },
-    senderName: { type: Number, require: true },
+    senderName: { type: String, require: true },
     receipientName: { type: String, require: true },
     senderEmail: { type: String, require: true },
     receipientEmail: { type: String, require: true },
