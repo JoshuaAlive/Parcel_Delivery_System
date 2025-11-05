@@ -14,13 +14,13 @@ const {
 const router = express.Router();
 
 // ADD PARCEL
-router.post("/", verifyToken, createParcel);
+router.post("/", createParcel);  // verifyToken
 
 // GET ALL PARCELS
-router.get("/", verifyTokenAndAuthorization, getAllParcels);
+router.get("/", getAllParcels); // verifyTokenAndAuthorization
 
 // UPDATE PARCEL
-router.put("/:id", verifyTokenAndAuthorization, updateParcel);
+router.put("/:id", updateParcel); // verifyTokenAndAuthorization
 
 // GET ONE PARCEL
 router.get("/find/:id", verifyToken, getOneParcel);
@@ -29,6 +29,6 @@ router.get("/find/:id", verifyToken, getOneParcel);
 router.post("/me", verifyTokenAndAuthorization, getUserParcel);
 
 // DELETE PARCEL
-router.delete("/:id", verifyTokenAndAuthorization, deleteParcel);
+router.delete("/:id",  deleteParcel);    // verifyTokenAndAuthorization
 
 module.exports = router;
