@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Menu from "./components/Menu";
 import Footer from "./components/Footer";
 import Users from "./pages/Users";
+import Login from "./pages/Login"
 // Simple Home component to ensure something renders.
 // Replace this with `import Home from './path/to/Home'` if you have a separate file.
 
@@ -63,6 +64,12 @@ function App() {
       path: "/parcel/:parcelId",
       element: <Parcel />,
     },
+
+    {
+      path: "/login",
+      element: <Login />,
+    },
+
   ]);
   return (
     <>

@@ -1,0 +1,1 @@
+// export { publicRequest } from "./requestMethod";
