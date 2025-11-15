@@ -5,20 +5,32 @@ require("dotenv").config();
 
 // REGISTER USER
 const registerUser = async (req, res) => {
-  const email = req.body.email;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRegex.test(email)) {
-    return res.status(400).json("Invalid or missing email.");
-  }
+  const { email } = req.body; // Extract email
 
-  const existingUser = await User.findOne({ email: req.body.email });
+  // Check if email already exists
+  const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return res.status(400).json("Email already exists.");
+    return res
+      .status(400)
+      .json("Email already exists.");
   }
 
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json("Invalid email format.");
+  }
+
+  // Password validation
+  const password = req.body.password;
+  if (password.length < 6) {
+    return res.status(400).json("Password must be at least 6 characters.");
+  }
+
+  // Create new user
   const newUser = new User({
     fullname: req.body.fullname,
-    email: email,
+    email: req.body.email,
     age: req.body.age,
     country: req.body.country,
     address: req.body.address,
@@ -49,8 +61,8 @@ const loginUser = async (req, res) => {
       process.env.PASS
     );
 
-    // use the same CryptoJs reference (enc.Utf8) to convert decrypted data to string
     const originalPassword = hashedPassword.toString(CryptoJs.enc.Utf8);
+
     if (originalPassword !== req.body.password) {
       return res.status(500).json("Wrong credentials");
     }
