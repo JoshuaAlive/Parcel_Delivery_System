@@ -3,21 +3,70 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FaTrash } from "react-icons/fa";
 import { useEffect } from "react";
 import { useState } from "react";
-import {publicRequest} from "../requestMethod";
+import { publicRequest } from "../requestMethod";
 
 const Parcels = () => {
-
   const [parcels, setParcels] = useState([]);
 
-  
-
   const columns = [
-    { field: "from", headerName: "From", width: 150 },
-    { field: "to", headerName: "To", width: 150 },
-    { field: "sendername", headerName: "Sender", width: 150 },
-    { field: "recipientname", headerName: "Recipient", width: 150 },
-    { field: "note", headerName: "Note", width: 200 },
-    { field: "cost", headerName: "Cost", width: "100" },
+    {
+      field: "id",
+      headerName: "ID",
+      width: 260,
+      renderCell: (params) => (
+        <span className="text-xs text-gray-600" id={`row-id-${params.row._id}`}>
+          {params.row._id}
+        </span>
+      ),
+    },
+    {
+      field: "from",
+      headerName: "From",
+      width: 150,
+      renderCell: (params) => (
+        <span id={`cell-${params.row._id}-from`}>{params.value}</span>
+      ),
+    },
+    {
+      field: "to",
+      headerName: "To",
+      width: 150,
+      renderCell: (params) => (
+        <span id={`cell-${params.row._id}-to`}>{params.value}</span>
+      ),
+    },
+    {
+      field: "sendername",
+      headerName: "Sender",
+      width: 150,
+      renderCell: (params) => (
+        <span id={`cell-${params.row._id}-sendername`}>{params.value}</span>
+      ),
+    },
+    {
+      field: "recipientname",
+      headerName: "Recipient",
+      width: 150,
+      renderCell: (params) => (
+        <span id={`cell-${params.row._id}-recipientname`}>{params.value}</span>
+      ),
+    },
+    {
+      field: "note",
+      headerName: "Note",
+      width: 200,
+      renderCell: (params) => (
+        <span id={`cell-${params.row._id}-note`}>{params.value}</span>
+      ),
+    },
+    {
+      field: "cost",
+      headerName: "Cost",
+      width: 100,
+      renderCell: (params) => (
+        <span id={`cell-${params.row._id}-cost`}>{params.value}</span>
+      ),
+    },
     {
       field: "edit",
       headerName: "Edit",
@@ -41,7 +90,10 @@ const Parcels = () => {
       renderCell: (params) => {
         return (
           <>
-            <FaTrash className="text-red-500 cursor-pointer m-[10px]" onClick={() => handleDelete(params.row._id)}/>
+            <FaTrash
+              className="text-red-500 cursor-pointer m-[10px]"
+              onClick={() => handleDelete(params.row._id)}
+            />
           </>
         );
       },
@@ -54,20 +106,20 @@ const Parcels = () => {
         const res = await publicRequest.get("/parcels");
         setParcels(res.data);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
     getParcels();
   }, []);
 
-const handleDelete = async(id) =>{
-  try {
+  const handleDelete = async (id) => {
+    try {
       await publicRequest.delete(`/parcels/${id}`);
       window.location.reload();
-  } catch (error) {
-    console.log(error);
-  }
-}
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="m-[30px] bg-[#fff] p-[20px]">
@@ -80,13 +132,13 @@ const handleDelete = async(id) =>{
           </button>
         </Link>
       </div>
-      <DataGrid 
-      rows={parcels} 
-      columns={columns} 
-      getRowId={(row) => row._id}
-      disableSelectionOnClick
-      pageSize={10}
-      checkboxSelection
+      <DataGrid
+        rows={parcels}
+        columns={columns}
+        getRowId={(row) => row._id}
+        disableSelectionOnClick
+        pageSize={10}
+        checkboxSelection
       />
     </div>
   );
