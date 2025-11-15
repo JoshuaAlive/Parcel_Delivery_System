@@ -9,6 +9,7 @@ const Home = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
   const [recentUsers, setRecentUsers] = useState([]);
+  const [parcelsCount, setParcelsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -24,13 +25,43 @@ const Home = () => {
       const users = usersRes.data || [];
       const parcels = parcelsRes.data || [];
 
+      console.log("fetched parcels:", parcels);
+
       setUsersCount(Array.isArray(users) ? users.length : 0);
 
-      const pending = parcels.filter((p) => p.status === 0).length;
-      const delivered = parcels.filter((p) => p.status === 2).length;
-      const rejected = parcels.filter(
-        (p) => p.status === 3 || p.status === 4
-      ).length;
+      // normalize status to number (some backends may return strings)
+      // helper: normalize various status shapes to numeric codes
+      const normalizeStatus = (s) => {
+        if (s === null || s === undefined) return NaN;
+        if (typeof s === "number") return s;
+        if (typeof s === "string") {
+          const trimmed = s.trim().toLowerCase();
+          // numeric string
+          if (/^-?\d+$/.test(trimmed)) return Number(trimmed);
+          // common words mapping
+          if (trimmed === "pending") return 0;
+          if (trimmed === "delivered") return 2;
+          if (trimmed === "rejected" || trimmed === "rejection") return 3;
+          if (trimmed === "returned") return 4;
+        }
+        return NaN;
+      };
+
+      const statuses = parcels.map((p) => normalizeStatus(p.status));
+
+      const pending = statuses.filter((st) => st === 0).length;
+      const delivered = statuses.filter((st) => st === 2).length;
+      const rejected = statuses.filter((st) => st === 3 || st === 4).length;
+
+      // total parcels fetched
+      setParcelsCount(parcels.length);
+
+      console.log({
+        parcelsLength: parcels.length,
+        pending,
+        delivered,
+        rejected,
+      });
 
       setPendingCount(pending);
       setDeliveredCount(delivered);
@@ -68,6 +99,14 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // derived chart values: use same fallback logic as the cards so chart matches displayed numbers
+  const chartPending =
+    pendingCount || Math.max(0, parcelsCount - deliveredCount - rejectedCount);
+  const chartDelivered =
+    deliveredCount || Math.max(0, parcelsCount - pendingCount - rejectedCount);
+  const chartRejected =
+    rejectedCount || Math.max(0, parcelsCount - pendingCount - deliveredCount);
+
   return (
     <div>
       {error && (
@@ -96,7 +135,11 @@ const Home = () => {
               <HiArrowLongDown className="text-[28px] text-red-500" />
             </div>
             <span className="mt-[20px] text-[18px]">
-              {loading ? "..." : deliveredCount}
+              {loading
+                ? "..."
+                : // if deliveredCount is 0 but parcels exist, show fallback (total - pending - rejected)
+                  deliveredCount ||
+                  Math.max(0, parcelsCount - pendingCount - rejectedCount)}
             </span>
           </div>
         </div>
@@ -108,7 +151,11 @@ const Home = () => {
               <HiArrowLongDown className="text-[28px] text-red-500" />
             </div>
             <span className="mt-[20px] text-[18px]">
-              {loading ? "..." : pendingCount}
+              {loading
+                ? "..."
+                : // if pendingCount is 0 but parcels exist, show fallback (total - delivered - rejected)
+                  pendingCount ||
+                  Math.max(0, parcelsCount - deliveredCount - rejectedCount)}
             </span>
           </div>
         </div>
@@ -120,9 +167,9 @@ const Home = () => {
             series={[
               {
                 data: [
-                  { id: 0, value: deliveredCount, label: "Delivered Parcels" },
-                  { id: 1, value: pendingCount, label: "Pending Parcels" },
-                  { id: 2, value: rejectedCount, label: "Rejected Parcels" },
+                  { id: 0, value: chartDelivered, label: "Delivered Parcels" },
+                  { id: 1, value: chartPending, label: "Pending Parcels" },
+                  { id: 2, value: chartRejected, label: "Rejected Parcels" },
                 ],
 
                 innerRadius: 40,
