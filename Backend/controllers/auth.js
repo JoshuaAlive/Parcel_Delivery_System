@@ -5,9 +5,20 @@ require("dotenv").config();
 
 // REGISTER USER
 const registerUser = async (req, res) => {
-  const newUser = User({
-    fullName: req.body.fullName,
-    email: req.body.email,
+  const email = req.body.email;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    return res.status(400).json("Invalid or missing email.");
+  }
+
+  const existingUser = await User.findOne({ email: req.body.email });
+  if (existingUser) {
+    return res.status(400).json("Email already exists.");
+  }
+
+  const newUser = new User({
+    fullname: req.body.fullname,
+    email: email,
     age: req.body.age,
     country: req.body.country,
     address: req.body.address,
