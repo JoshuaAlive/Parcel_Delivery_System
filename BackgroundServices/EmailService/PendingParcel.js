@@ -1,7 +1,9 @@
 const ejs = require("ejs");
-require("dotenv").config();
+const dotenv = require("dotenv");
 const sendMail = require("../helpers/sendmail");
 const Parcel = require("../models/Parcel");
+
+dotenv.config();
 
 const SendParcelPendingEmail = async () => {
   const parcels = await Parcel.find({ status: 0 });
@@ -9,7 +11,7 @@ const SendParcelPendingEmail = async () => {
   if (parcels.length > 0) {
     for (let parcel of parcels) {
       ejs.renderFile(
-        "templates/pendingParcel.ejs",
+        "templates/pendingparcel.ejs",
         {
           sendername: parcel.sendername,
           from: parcel.from,
@@ -19,27 +21,24 @@ const SendParcelPendingEmail = async () => {
           weight: parcel.weight,
           note: parcel.note,
         },
-        async (error, data) => {
-          if (error) {
-            console.error("Error rendering email template:", error);
-            return;
-          }
+        async (err, data) => {
           let messageOption = {
             from: process.env.EMAIL,
             to: parcel.senderemail,
-            subject: "You've got a parcel, and it is yet to be delivered.",
+            subject: "Your parcel is being processed.",
             html: data,
           };
+
           try {
             await sendMail(messageOption);
           } catch (error) {
-            console.error("Error sending email:", error);
+            console.log(error);
           }
         }
       );
 
       ejs.renderFile(
-        "templates/pendingParcel.ejs",
+        "templates/pendingparcel.ejs",
         {
           sendername: parcel.sendername,
           from: parcel.from,
@@ -49,26 +48,24 @@ const SendParcelPendingEmail = async () => {
           weight: parcel.weight,
           note: parcel.note,
         },
-        async (error, data) => {
-          if (error) {
-            console.error("Error rendering email template:", error);
-            return;
-          }
+        async (err, data) => {
           let messageOption = {
             from: process.env.EMAIL,
             to: parcel.recipientemail,
-            subject: "You've got a parcel, and it is yet to be delivered.",
+            subject: "You've got a parcel",
             html: data,
           };
+
           try {
             await sendMail(messageOption);
             await Parcel.findByIdAndUpdate(parcel._id, { $set: { status: 1 } });
           } catch (error) {
-            console.error("Error sending email:", error);
+            console.log(error);
           }
         }
       );
     }
   }
 };
-module.exports =  {SendParcelPendingEmail};
+
+module.exports = { SendParcelPendingEmail };

@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-const parcelSchema = mongoose.Schema(
+const ParcelSchema = mongoose.Schema(
   {
-    from: { type: String, required: true },
-    to: { type: String, required: true, unique: true },
+    from: { type: String, require: true },
+    to: { type: String, require: true },
     sendername: { type: String, require: true },
     recipientname: { type: String, require: true },
     senderemail: { type: String, require: true },
@@ -15,7 +15,8 @@ const parcelSchema = mongoose.Schema(
     feedback: { type: String },
     status: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  {
+    timestamp: true,
+  }
 );
-
-module.exports = mongoose.model("Parcel", parcelSchema);
+module.exports = mongoose.model("Parcel", ParcelSchema);

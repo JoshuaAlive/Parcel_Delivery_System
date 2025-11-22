@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
-require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config();
 
 function createTransporter(config) {
   const transporter = nodemailer.createTransport(config);
@@ -20,11 +21,9 @@ let configurations = {
 const sendMail = async (messageoption) => {
   const transporter = await createTransporter(configurations);
   await transporter.verify();
-  await transporter.sendMail(messageoption, () => {
-    err, info;
-    if (error) {
-      console.error("Error occurred while sending email:", errpr);
-      return;
+  await transporter.sendMail(messageoption, (err, info) => {
+    if (err) {
+      console.log(err);
     }
 
     console.log(info.response);
