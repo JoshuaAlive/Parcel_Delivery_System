@@ -1,13 +1,13 @@
 const express = require("express");
-const router = express.Router();
 const { registerUser, loginUser } = require("../controllers/auth");
+const router = express.Router();
 
-const getStatus = (req, res) => {
-  res.send("Backend API is up and running...");
-};
+// REGISTRATION
 
 router.post("/register", registerUser);
+
+// LOGIN
+
 router.post("/login", loginUser);
-router.get("/", getStatus);
 
 module.exports = router;

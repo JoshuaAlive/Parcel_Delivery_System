@@ -3,81 +3,116 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 require("dotenv").config();
 
-// REGISTER USER
 const registerUser = async (req, res) => {
-  const { email } = req.body; // Extract email
+  const { fullname, email, age, country, address, password, adminKey } =
+    req.body;
 
-  // Check if email already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res
-      .status(400)
-      .json("Email already exists.");
+  // ---- VALIDATIONS START ----
+  if (!fullname || !email || !age || !country || !address || !password) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return res.status(400).json("Invalid email format.");
+    return res
+      .status(400)
+      .json({ message: "Please enter a valid email address" });
   }
 
-  // Password validation
-  const password = req.body.password;
   if (password.length < 6) {
-    return res.status(400).json("Password must be at least 6 characters.");
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters long" });
   }
 
-  // Create new user
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ message: "Email already exists." });
+  }
+  // ---- VALIDATIONS END ----
+
+  // role: never trust the client. Default to "user".
+  let role = "user";
+
+  // If client supplies the correct ADMIN_KEY, grant admin role.
+  // Keep ADMIN_KEY secret in .env. This is optional — you can remove this check
+  // and use createInitialAdmin/manual DB to create admins if you prefer.
+  if (adminKey && process.env.ADMIN_KEY && adminKey === process.env.ADMIN_KEY) {
+    role = "admin";
+  }
+
   const newUser = new User({
-    fullname: req.body.fullname,
-    email: req.body.email,
-    age: req.body.age,
-    country: req.body.country,
-    address: req.body.address,
-    password: CryptoJs.AES.encrypt(
-      req.body.password,
-      process.env.PASS
-    ).toString(),
+    fullname,
+    email,
+    age,
+    country,
+    address,
+    role,
+    password: CryptoJs.AES.encrypt(password, process.env.PASS).toString(),
   });
 
   try {
     const user = await newUser.save();
-    res.status(201).json(user);
+    // don't send password back
+    const { password: pwd, ...info } = user._doc;
+    res.status(201).json({ message: "Registration successful", user: info });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({
+      message: "An error occurred while registering user",
+      error: error.message,
+    });
   }
 };
 
-// LOGIN USER
 const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json("You have not registered");
+      return res.status(401).json({ message: "You have not registered" });
     }
 
     const hashedPassword = CryptoJs.AES.decrypt(
       user.password,
       process.env.PASS
     );
-
     const originalPassword = hashedPassword.toString(CryptoJs.enc.Utf8);
 
-    if (originalPassword !== req.body.password) {
-      return res.status(500).json("Wrong credentials");
+    if (originalPassword !== password) {
+      return res.status(401).json({ message: "Incorrect email or password" });
     }
 
-    const { password, ...info } = user._doc;
-
+    const { password: pwd, ...info } = user._doc;
     const accessToken = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SEC,
       { expiresIn: "10d" }
     );
 
-    res.status(200).json({ ...info, accessToken });
+    if (user.role === "admin") {
+      return res.status(200).json({
+        message: "Admin login successful",
+        ...info,
+        accessToken,
+        role: "admin",
+      });
+    } else {
+      return res.status(200).json({
+        message: "User login successful",
+        ...info,
+        accessToken,
+        role: "user",
+      });
+    }
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({
+      message: "An error occurred during login",
+      error: error.message,
+    });
   }
 };
 
