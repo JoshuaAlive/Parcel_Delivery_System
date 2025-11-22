@@ -8,9 +8,9 @@ const cron = require("node-cron");
 // const cors = require("cors");
 const connectDB = require("./config/db");
 const PORT = process.env.PORT || 8501;
-const { SendParcelDeliveredEmail } = require("./EmailService/DeliveredParcel");
+const { sendParcelDeliveredEmail } = require("./EmailService/DeliveredParcel");
 const { SendParcelPendingEmail } = require("./EmailService/PendingParcel");
-const { SendWelcomeEmail } = require("./EmailService/WelcomeEmail");
+const { sendWelcomeEmail } = require("./EmailService/WelcomeEmail");
 
 // MIDDLEWARES - register parsers and CORS before routes so handlers can read req.body
 // register body parsers and CORS before mounting routes
@@ -37,7 +37,7 @@ const run = () => {
     //console.log(new Date().toISOString(), "[scheduler] running tasks...");
 
     try {
-      await SendParcelDeliveredEmail();
+      await sendParcelDeliveredEmail();
     } catch (e) {
       console.error("sendParcelDeliveredEmail error:", e);
     }
@@ -49,7 +49,7 @@ const run = () => {
     }
 
     try {
-      await SendWelcomeEmail();
+      await sendWelcomeEmail();
     } catch (e) {
       console.error("sendWelcomeEmail error:", e);
     }
@@ -86,4 +86,3 @@ connectDB()
       );
     });
   });
-
