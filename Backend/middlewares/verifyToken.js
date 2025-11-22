@@ -1,8 +1,10 @@
+const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
+dotenv.config();
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.token;
+
   if (authHeader) {
     const token = authHeader.split("")[1];
     jwt.verify(token, process.env.JWT_SEC, (err, user) => {
@@ -16,13 +18,13 @@ const verifyToken = (req, res, next) => {
 };
 
 const verifyTokenAndAuthorization = (req, res, next) => {
-    verifyToken(req, res, () => {
-        if(req.user.role =="admin") {
-            next();
-        } else {
-            res.status(403).json("You are not permitted to perform this operation")
-        }
-    })
-}
+  verifyToken(req, res, () => {
+    if (req.user.role == "admin") {
+      next();
+    } else {
+      res.status(403).json("You are not permitted to do this operation");
+    }
+  });
+};
 
 module.exports = { verifyToken, verifyTokenAndAuthorization };
