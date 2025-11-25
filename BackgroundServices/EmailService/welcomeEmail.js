@@ -28,7 +28,7 @@ const sendWelcomeEmail = async () => {
           let messageOption = {
             from: process.env.EMAIL,
             to: user.email,
-            subject: "Welcome to SendIT",
+            subject: "Welcome to DeliverIT",
             html: info,
           };
 
