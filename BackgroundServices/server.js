@@ -10,7 +10,7 @@ const connectDB = require("./config/db");
 const PORT = process.env.PORT || 8501;
 const { sendParcelDeliveredEmail } = require("./EmailService/DeliveredParcel");
 const { SendParcelPendingEmail } = require("./EmailService/PendingParcel");
-const { sendWelcomeEmail } = require("./EmailService/WelcomeEmail");
+const { sendWelcomeEmail } = require("./EmailService/welcomeEmail");
 
 // MIDDLEWARES - register parsers and CORS before routes so handlers can read req.body
 // register body parsers and CORS before mounting routes
