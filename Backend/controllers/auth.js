@@ -4,19 +4,46 @@ const User = require("../models/User");
 require("dotenv").config();
 
 const registerUser = async (req, res) => {
-  const { fullname, email, age, country, address, password, adminKey } =
-    req.body;
+  const {
+    fullname,
+    email,
+    age,
+    country,
+    address,
+    password,
+    phoneNumber,
+    adminKey,
+  } = req.body;
 
   // ---- VALIDATIONS START ----
-  if (!fullname || !email || !age || !country || !address || !password) {
+  if (
+    !fullname ||
+    !email ||
+    !age ||
+    !country ||
+    !address ||
+    !password ||
+    !phoneNumber
+  ) {
     return res.status(400).json({ message: "All fields are required" });
   }
-
+  // Email format validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res
       .status(400)
       .json({ message: "Please enter a valid email address" });
+  }
+
+  // Phone number format validation
+  const phoneRegex = /^\+?[0-9]{10,14}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    return res.status(400).json({ message: "Invalid phone number format." });
+  }
+
+  const existingPhone = await User.findOne({ phoneNumber });
+  if (existingPhone) {
+    return res.status(400).json({ message: "Phone number already exists." });
   }
 
   if (password.length < 6) {
