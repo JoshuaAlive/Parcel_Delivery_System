@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// ROUTES
+// ROUTES 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/parcels", parcelRoute);
 app.use("/api/v1/users", userRoute);
@@ -24,7 +24,7 @@ connectDB()
     console.log("MongoDB connected successfully...");
 
     // ============================
-    // 🔥 CREATE ADMIN IF NOT EXISTS
+    //  CREATE ADMIN IF NOT EXISTS
     // ============================
     try {
       const User = require("./models/User");
@@ -47,14 +47,13 @@ connectDB()
         });
 
         await admin.save();
-        console.log("🔥 Admin created:", admin.email);
+        console.log("Admin created:", admin.email);
       } else {
         console.log("Admin already exists — skipping creation.");
       }
     } catch (err) {
       console.error("Error creating admin:", err.message);
     }
-    // ============================
 
     app.listen(PORT, () => {
       console.log(`Backend server is running on: http://localhost:${PORT}`);
@@ -64,15 +63,3 @@ connectDB()
     console.error("Failed to connect to MongoDB", error.message);
     process.exit(1);
   });
-
-// connectDB()
-//   .then(() => {
-//     console.log("MongoDB connected successfully...");
-//     app.listen(PORT, () => {
-//       console.log(`Backend server is running on port:http://localhost:${PORT}`);
-//     });
-//   })
-//   .catch((error) => {
-//     console.error("Failed to connect to MongoDB", error.message);
-//     process.exit(1);
-//   });

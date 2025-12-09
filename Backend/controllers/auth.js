@@ -4,14 +4,31 @@ const User = require("../models/User");
 require("dotenv").config();
 
 const registerUser = async (req, res) => {
-  const { fullname, email, age, country, address, password, adminKey } =
-    req.body;
+  const {
+    fullname,
+    email,
+    age,
+    country,
+    address,
+    password,
+    phoneNumber,
+    adminKey,
+  } = req.body;
 
   // ---- VALIDATIONS START ----
-  if (!fullname || !email || !age || !country || !address || !password) {
+  if (
+    !fullname ||
+    !email ||
+    !age ||
+    !country ||
+    !address ||
+    !password ||
+    !phoneNumber
+  ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res
@@ -19,12 +36,26 @@ const registerUser = async (req, res) => {
       .json({ message: "Please enter a valid email address" });
   }
 
+  // Validate phone number format for all countries
+  const phoneRegex = /^\+?[0-9]{10,14}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    return res.status(400).json({ message: "Invalid phone number format" });
+  }
+
+  // Check for existing phone number
+  const existingPhone = await User.findOne({ phoneNumber });
+  if (existingPhone) {
+    return res.status(400).json({ message: "Phone number already exists." });
+  }
+
+  // check for password length
   if (password.length < 6) {
     return res
       .status(400)
       .json({ message: "Password must be at least 6 characters long" });
   }
 
+  // check for existing user
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return res.status(400).json({ message: "Email already exists." });
@@ -35,8 +66,7 @@ const registerUser = async (req, res) => {
   let role = "user";
 
   // If client supplies the correct ADMIN_KEY, grant admin role.
-  // Keep ADMIN_KEY secret in .env. This is optional — you can remove this check
-  // and use createInitialAdmin/manual DB to create admins if you prefer.
+
   if (adminKey && process.env.ADMIN_KEY && adminKey === process.env.ADMIN_KEY) {
     role = "admin";
   }

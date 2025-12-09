@@ -2,21 +2,22 @@ const mongoose = require("mongoose");
 
 const ParcelSchema = mongoose.Schema(
   {
-    from: { type: String, require: true },
-    to: { type: String, require: true },
-    sendername: { type: String, require: true },
-    recipientname: { type: String, require: true },
-    senderemail: { type: String, require: true },
-    recipientemail: { type: String, require: true },
-    weight: { type: Number, require: true },
-    cost: { type: Number, require: true },
-    date: { type: String, require: true },
+    from: { type: String, required: true },
+    to: { type: String, required: true },
+    sendername: { type: String, required: true },
+    recipientname: { type: String, required: true },
+    senderemail: { type: String, required: true },
+    recipientemail: { type: String, required: true },
+    senderphone: { type: Number, required: true, unique: true },
+    weight: { type: Number, required: true },
+    cost: { type: Number, required: true },
+    date: { type: String, required: true },
     note: { type: String },
     feedback: { type: String },
     status: { type: Number, default: 0 },
   },
   {
-    timestamp: true,
+    timestamps: true,
   }
 );
 
