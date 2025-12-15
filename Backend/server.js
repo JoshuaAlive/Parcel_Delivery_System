@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// ROUTES
+// ROUTES 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/parcels", parcelRoute);
 app.use("/api/v1/users", userRoute);
@@ -23,11 +23,12 @@ connectDB()
   .then(async () => {
     console.log("MongoDB connected successfully...");
 
+    // ============================
+    //  CREATE ADMIN IF NOT EXISTS
+    // ============================
     try {
       const User = require("./models/User");
       const CryptoJs = require("crypto-js");
-
-      // ADMIN CREATED MANUALLY
 
       const adminExists = await User.findOne({ role: "admin" });
 
